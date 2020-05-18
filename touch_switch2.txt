@@ -1,0 +1,75 @@
+#include <wiringPi.h>
+#include <stdio.h>
+#include <time.h>
+
+#define TouchPin	0
+#define Gpin		1
+#define Rpin		2
+#define LED1		5
+	
+
+int tmp = 0;
+
+void LED(int color)
+{
+	pinMode(Gpin, OUTPUT);
+	pinMode(Rpin, OUTPUT);
+	pinMode(LED1, OUTPUT);
+	
+
+	if (color == 0)
+	{
+		digitalWrite(Rpin, HIGH);
+		digitalWrite(Gpin, LOW);
+		digitalWrite(LED1, 1);
+	}
+
+	else if (color == 1)
+	{
+		digitalWrite(Rpin, LOW);
+		digitalWrite(Gpin, HIGH);
+		digitalWrite(LED1, 0);
+
+	}
+	else
+		printf("LED Error");
+}
+void Print(int x){
+
+	struct tm *onnow,*offnow;
+	time_t on_time,off_time;
+
+	if (x != tmp){
+		if (x == 0)
+		{
+			time (&on_time);
+			onnow = localtime(&on_time);
+			printf("...ON	%d	hour	%d	minute	%d	second\n"
+				,onnow->tm_hour,onnow->tm_min,onnow->tm_sec);
+		}
+		if (x == 1)
+		{
+			time (&off_time);
+			offnow = localtime(&off_time);
+			printf("OFF..	%d	hour	%d	minute	%d	second\n"
+				,offnow->tm_hour,offnow->tm_min,offnow->tm_sec);
+		}
+		tmp = x;
+	}
+}
+int main(void)
+{
+
+	if(wiringPiSetup() == -1){ //when initialize wiring failed,print message to screen
+		printf("setup wiringPi failed !");
+		return 1; 
+	}
+	
+	pinMode(TouchPin, INPUT);
+	
+	while(1){
+		LED(digitalRead(TouchPin));	
+		Print(digitalRead(TouchPin));	
+	}
+	return 0;
+}
